@@ -728,7 +728,52 @@
       }
 
     }
-  </style>
+  
+
+/* Ajuste responsive de logos y navegación para celular */
+@media (max-width: 600px) {
+  header, .header {
+    padding: 14px 12px 8px;
+  }
+
+  .logos, .logo-row, .brand-logos {
+    display: grid !important;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px 12px;
+    align-items: center;
+    justify-items: center;
+    width: 100%;
+    max-width: 100%;
+  }
+
+  .logos img, .logo-row img, .brand-logos img {
+    max-width: 118px !important;
+    max-height: 42px !important;
+    width: auto !important;
+    height: auto !important;
+    object-fit: contain;
+  }
+
+  .logos img:last-child, .logo-row img:last-child, .brand-logos img:last-child {
+    grid-column: 1 / -1;
+    max-width: 165px !important;
+    max-height: 50px !important;
+  }
+
+  nav, .nav-tabs, .tabs {
+    overflow-x: auto;
+    white-space: nowrap;
+    padding: 8px 12px;
+    gap: 10px;
+  }
+
+  nav a, .nav-tabs a, .tabs a,
+  nav button, .nav-tabs button, .tabs button {
+    flex: 0 0 auto;
+  }
+}
+
+</style>
 </head>
 <body>
   <nav class="navbar" aria-label="Navegacion principal">
