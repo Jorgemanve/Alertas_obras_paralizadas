@@ -5,6 +5,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Alertas de Obras Públicas Paralizadas</title>
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.css" />
+  <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.Default.css" />
   <style>
     :root {
       --gfp-red: #d21e25;
@@ -62,6 +64,8 @@
       display: flex;
       align-items: center;
       gap: 14px;
+      flex-wrap: nowrap;
+      white-space: nowrap;
     }
 
     .brand-logos a {
@@ -182,12 +186,11 @@
     .well-panel {
       padding: 16px;
       display: grid;
-      grid-template-columns: repeat(6, minmax(140px, 1fr));
-      gap: 12px;
+      grid-template-columns: minmax(190px, 1.25fr) repeat(5, minmax(130px, 1fr)) minmax(132px, 0.8fr);
+      gap: 10px;
       align-items: end;
     }
 
-    .well-panel h3,
     .section-title {
       margin: 0 0 14px;
       color: var(--gfp-blue);
@@ -195,13 +198,12 @@
       line-height: 1.2;
     }
 
-    .well-panel h3 {
-      grid-column: 1 / -1;
-      margin-bottom: 2px;
-    }
-
     .filter-field {
       min-width: 0;
+    }
+
+    .filters-title {
+      margin-bottom: -4px;
     }
 
     label {
@@ -213,17 +215,22 @@
     }
 
     select,
-    input[type="range"] {
+    input[type="search"] {
       width: 100%;
     }
 
-    select {
+    select,
+    input[type="search"] {
       min-height: 38px;
       border: 1px solid #cbd5e1;
       border-radius: 6px;
       background: #fff;
       color: #253044;
       padding: 7px 9px;
+    }
+
+    input[type="search"]::placeholder {
+      color: #94a3b8;
     }
 
     .btn {
@@ -243,6 +250,13 @@
 
     .btn-block {
       width: 100%;
+      white-space: normal;
+      line-height: 1.05;
+      text-align: center;
+    }
+
+    .filter-action {
+      align-self: end;
     }
 
     .btn.secondary {
@@ -322,6 +336,10 @@
       font-size: 1.84rem;
     }
 
+    body.loading-kpis .kpi-grid .number {
+      visibility: hidden;
+    }
+
     .value-box .label {
       margin: 9px 0 4px;
       color: #39455f;
@@ -356,14 +374,14 @@
     }
 
     .map-wrap {
-      min-height: 690px;
+      min-height: 610px;
       display: block;
       align-items: stretch;
     }
 
     .peru-map {
       position: relative;
-      min-height: 690px;
+      min-height: 610px;
       border-radius: 8px;
       overflow: hidden;
       background: #d7e2e9;
@@ -451,11 +469,27 @@
 
     .cost-marker {
       display: block;
-      width: 22px;
-      height: 22px;
+      width: 18px;
+      height: 18px;
       border: 3px solid #fff;
       border-radius: 999px;
       box-shadow: 0 0 0 5px rgba(21, 44, 83, 0.18), 0 8px 18px rgba(0,0,0,0.28);
+    }
+
+    .marker-cluster-small,
+    .marker-cluster-medium,
+    .marker-cluster-large {
+      background: rgba(21, 44, 83, 0.18);
+    }
+
+    .marker-cluster-small div,
+    .marker-cluster-medium div,
+    .marker-cluster-large div {
+      color: #fff;
+      background: var(--gfp-accent);
+      border: 2px solid #fff;
+      box-shadow: 0 8px 22px rgba(21, 44, 83, 0.28);
+      font-weight: 900;
     }
 
     .cost-marker.rango-50-plus { background: #b91c1c; }
@@ -565,6 +599,30 @@
       color: #24324a;
     }
 
+    .popup-link-fact {
+      align-items: center;
+      border: 1px solid #c8d6ea;
+      background: #eef4ff;
+    }
+
+    .popup-link-fact strong {
+      text-align: left;
+    }
+
+    .popup-link-fact a {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 28px;
+      padding: 5px 9px;
+      border-radius: 6px;
+      color: #fff;
+      background: var(--gfp-accent);
+      text-decoration: none;
+      font-weight: 900;
+      white-space: nowrap;
+    }
+
     .dot {
       width: 10px;
       height: 10px;
@@ -661,13 +719,50 @@
       font-weight: 900;
     }
 
+    .report-months {
+      display: grid;
+      gap: 18px;
+      max-width: 1180px;
+      margin: 24px auto;
+      padding: 0 24px;
+    }
+
+    .month-folder {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #fff;
+      box-shadow: 0 8px 22px rgba(21, 44, 83, 0.08);
+      overflow: hidden;
+    }
+
+    .month-folder-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 16px 18px;
+      color: var(--gfp-blue);
+      background: #eef4ff;
+      border-bottom: 1px solid var(--line);
+      font-weight: 900;
+    }
+
+    .month-folder-head h3 {
+      margin: 0;
+      font-size: 1.08rem;
+    }
+
+    .month-folder-head span {
+      color: var(--muted);
+      font-size: 0.84rem;
+      font-weight: 800;
+    }
+
     .downloads {
       display: grid;
       grid-template-columns: repeat(3, minmax(0, 1fr));
       gap: 16px;
-      max-width: 1180px;
-      margin: 24px auto;
-      padding: 0 24px;
+      padding: 18px;
     }
 
     .download-card {
@@ -685,6 +780,19 @@
     .download-card p {
       color: var(--muted);
       min-height: 45px;
+    }
+
+    .report-period {
+      display: inline-flex;
+      align-items: center;
+      min-height: 28px;
+      margin-bottom: 10px;
+      padding: 4px 9px;
+      border-radius: 6px;
+      color: var(--gfp-blue);
+      background: #eef4ff;
+      font-size: 0.82rem;
+      font-weight: 900;
     }
 
     .footer-simple {
@@ -716,6 +824,7 @@
       .navbar {
         align-items: flex-start;
         flex-direction: column;
+        gap: 10px;
       }
 
       .brand {
@@ -724,20 +833,27 @@
       }
 
       .brand-logos {
-        flex-wrap: wrap;
-        gap: 10px;
+        flex-wrap: nowrap;
+        gap: 8px;
+        width: 100%;
+        overflow: hidden;
       }
 
-      .brand-logo.gfp { width: 82px; height: 44px; }
-      .brand-logo.seco { width: 96px; height: 42px; }
-      .brand-logo.basel { width: 160px; height: 40px; }
+      .brand-logo.gfp { width: 72px; height: 38px; }
+      .brand-logo.seco { width: 82px; height: 36px; }
+      .brand-logo.basel { width: 132px; height: 34px; }
+
+      .nav-tabs {
+        width: 100%;
+        justify-content: flex-start;
+      }
 
       .map-wrap {
         min-height: auto;
       }
 
       .peru-map {
-        min-height: 520px;
+        min-height: 480px;
       }
 
       .well-panel {
@@ -784,9 +900,33 @@
       }
 
     }
+
+    @media (max-width: 420px) {
+      .navbar {
+        padding-left: 12px;
+        padding-right: 12px;
+      }
+
+      .brand-logos {
+        gap: 6px;
+      }
+
+      .brand-logo.gfp { width: 60px; height: 32px; }
+      .brand-logo.seco { width: 68px; height: 30px; }
+      .brand-logo.basel { width: 106px; height: 28px; }
+
+      .nav-tabs {
+        gap: 5px;
+      }
+
+      .nav-tabs button {
+        padding: 7px 8px;
+        font-size: 0.86rem;
+      }
+    }
   </style>
 </head>
-<body>
+<body class="loading-kpis">
   <nav class="navbar" aria-label="Navegación principal">
     <div class="brand">
       <div class="brand-logos" aria-label="GFP, SECO y Basel Institute on Governance">
@@ -817,8 +957,13 @@
     </div>
 
     <div class="layout-dashboard">
+      <h3 class="section-title filters-title">Filtros de búsqueda</h3>
       <aside class="well-panel">
-        <h3>Filtros de búsqueda</h3>
+        <div class="filter-field">
+          <label for="palabra-clave">Palabra clave</label>
+          <input id="palabra-clave" type="search" placeholder="Buscar obra, CUI, entidad o lugar">
+        </div>
+
         <div class="filter-field">
           <label for="departamento">Departamento</label>
           <select id="departamento">
@@ -912,7 +1057,7 @@
           </select>
         </div>
 
-        <button class="btn btn-block" id="btn-limpiar" type="button">Limpiar filtros</button>
+        <button class="btn btn-block filter-action" id="btn-limpiar" type="button">Limpiar filtros</button>
       </aside>
 
       <main>
@@ -926,27 +1071,27 @@
         <h3 class="section-title">Indicadores clave</h3>
         <div class="kpi-grid">
           <div class="value-box" style="border-left-color: var(--danger)">
-            <p class="number" id="kpi-obras">2,572</p>
+            <p class="number" id="kpi-obras">1.248</p>
             <p class="label">Obras paralizadas</p>
-            <span class="sub" id="kpi-obras-sub">Corte referencial marzo 2025</span>
+            <span class="sub" id="kpi-obras-sub">total de obras visibles</span>
           </div>
           <div class="value-box" style="border-left-color: var(--gfp-red)">
-            <p class="number compact" id="kpi-inversion">S/ 43.1 mil mill.</p>
+            <p class="number compact" id="kpi-inversion">S/ 28 mil mill.</p>
             <p class="label">Inversión comprometida</p>
-            <span class="sub" id="kpi-inversion-sub">Monto acumulado aproximado</span>
+            <span class="sub" id="kpi-inversion-sub">costo actualizado de inversión</span>
           </div>
           <div class="value-box" style="border-left-color: var(--amber)">
-            <p class="number compact" id="kpi-saldo">S/ 22.5 mil mill.</p>
+            <p class="number compact" id="kpi-saldo">S/ 14 mil mill.</p>
             <p class="label">Saldo por ejecutar</p>
-            <span class="sub" id="kpi-saldo-sub">Recursos pendientes</span>
+            <span class="sub" id="kpi-saldo-sub">saldo por ejecutar</span>
           </div>
           <div class="value-box" style="border-left-color: var(--sky)">
-            <p class="number compact" id="kpi-personas">8.0 mill.</p>
+            <p class="number compact" id="kpi-personas">9.2 mill.</p>
             <p class="label">Población potencialmente afectada</p>
-            <span class="sub source-note" id="kpi-personas-sub">Fuente: Sistema de Seguimiento de Inversiones</span>
+            <span class="sub source-note" id="kpi-personas-sub">(Aproximación por distrito) | Fuente: SSI</span>
           </div>
           <div class="value-box" style="border-left-color: var(--green)">
-            <p class="number" id="kpi-regionales">327</p>
+            <p class="number" id="kpi-regionales">1.036</p>
             <p class="label">Obras de nivel subnacional</p>
             <span class="sub" id="kpi-regionales-sub">según filtros activos</span>
           </div>
@@ -1067,24 +1212,37 @@
     <div class="hero-red">Productos para seguimiento y descarga</div>
     <div class="hero-blue">
       <h2>Reportes y bases de datos</h2>
-      <p>Módulo para descargar fichas, bases depuradas y reportes por departamento, sector o entidad responsable.</p>
+      <p>Módulo para descargar fichas, bases depuradas, documentos de trabajo e infografías periódicas.</p>
     </div>
-    <div class="downloads">
-      <article class="download-card">
-        <h3>Base de datos</h3>
-        <p>Listado de obras, ubicación, montos, causa y otros datos asociados.</p>
-        <button class="btn secondary" type="button">Descargar base</button>
-      </article>
-      <article class="download-card">
-        <h3>Documento de trabajo</h3>
-        <p>Resumen ejecutivo con riesgos, avances, responsable y datos generales de la obra.</p>
-        <button class="btn secondary" type="button">Descargar</button>
-      </article>
+    <div class="report-months">
+      <section class="month-folder">
+        <div class="month-folder-head">
+          <h3>Mayo 2026</h3>
+        </div>
+        <div class="downloads">
+          <article class="download-card">
+            <h3>Base de datos</h3>
+            <p>Listado de obras, ubicación, montos, causa y otros datos asociados.</p>
+            <button class="btn secondary" type="button">Descargar base</button>
+          </article>
+          <article class="download-card">
+            <h3>Documento de trabajo</h3>
+            <p>Resumen ejecutivo con riesgos, avances, responsable y datos generales de la obra.</p>
+            <button class="btn secondary" type="button">Descargar</button>
+          </article>
+          <article class="download-card">
+            <h3>Infografías</h3>
+            <p>Piezas visuales para comunicar hallazgos, alertas y evolución mensual de las obras paralizadas.</p>
+            <button class="btn secondary" type="button">Ver infografía</button>
+          </article>
+        </div>
+      </section>
     </div>
   </section>
 
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-  <script src="assets/obras-data.js"></script>
+  <script src="https://unpkg.com/leaflet.markercluster@1.5.3/dist/leaflet.markercluster.js"></script>
+  <script src="assets/obras-data.js?v=20260609-poblacion"></script>
   <script>
     const tabs = document.querySelectorAll(".nav-tabs button");
     const panels = document.querySelectorAll(".tab-panel");
@@ -1094,6 +1252,7 @@
     const fullscreenButton = document.getElementById("map-fullscreen");
     const resetMapButton = document.getElementById("map-reset");
     const filterControls = {
+      keyword: document.getElementById("palabra-clave"),
       departamento: document.getElementById("departamento"),
       nivel: document.getElementById("nivel"),
       sector: document.getElementById("sector"),
@@ -1200,22 +1359,41 @@
     function makeMarkerIcon(cost) {
       return L.divIcon({
         className: "",
-        html: `<span class="cost-marker ${getCostMarkerClass(cost)}"></span>`,
-        iconSize: [28, 28],
-        iconAnchor: [14, 14]
+        html: `<span class="cost-marker ${getCostClass(cost)}"></span>`,
+        iconSize: [24, 24],
+        iconAnchor: [12, 12]
       });
     }
+
+    const clusteredMarkerLayer = L.markerClusterGroup
+      ? L.markerClusterGroup({
+          showCoverageOnHover: false,
+          spiderfyOnMaxZoom: true,
+          maxClusterRadius: 52,
+          chunkedLoading: true
+        })
+      : L.layerGroup();
+    clusteredMarkerLayer.addTo(leafletMap);
 
     const markersByWork = Object.entries(workData).reduce((acc, [key, work]) => {
       const marker = L.marker(work.latlng, { icon: makeMarkerIcon(work.cost), title: work.title });
       marker.on("click", () => openMapPopup(key));
-      marker.addTo(leafletMap);
       acc[key] = marker;
       return acc;
     }, {});
 
+    function syncMarkerLayer(visibleWorkKeys) {
+      clusteredMarkerLayer.clearLayers();
+      visibleWorkKeys.forEach((key) => {
+        clusteredMarkerLayer.addLayer(markersByWork[key]);
+      });
+      if (!leafletMap.hasLayer(clusteredMarkerLayer)) clusteredMarkerLayer.addTo(leafletMap);
+    }
+
     const initialMapBounds = L.latLngBounds(Object.values(workData).map((work) => work.latlng));
     leafletMap.fitBounds(initialMapBounds, { padding: [36, 36] });
+    const initialMapZoom = leafletMap.getZoom();
+    leafletMap.setMinZoom(initialMapZoom);
 
     tabs.forEach((tab) => {
       tab.addEventListener("click", () => {
@@ -1228,36 +1406,23 @@
     });
 
     function matchesFilter(work) {
+      const keyword = normalizeSearch(filterControls.keyword.value);
       const selectedRegion = filterControls.departamento.value;
       const selectedNivel = filterControls.nivel.value;
       const selectedSector = filterControls.sector.value;
       const selectedCausa = filterControls.causa.value;
       const selectedCosto = filterControls.costo.value;
       const costClass = getCostClass(work.cost);
+      const searchableText = workSearchIndex.get(work) || "";
+      const keywordTerms = keyword.split(" ").filter(Boolean);
+      const matchesKeyword = keywordTerms.every((term) => searchableText.includes(term));
 
-      return (selectedRegion === "Todos" || work.region === selectedRegion)
+      return matchesKeyword
+        && (selectedRegion === "Todos" || work.region === selectedRegion)
         && (selectedNivel === "Todos" || work.nivel === selectedNivel)
         && (selectedSector === "Todos" || work.sector === selectedSector)
         && (selectedCausa === "Todas" || work.causa === selectedCausa)
         && (selectedCosto === "todos" || selectedCosto === costClass);
-    }
-
-    function getCostMarkerClass(cost) {
-      return getCostClass(cost);
-    }
-
-    function getCostColor(cost) {
-      const colorByCost = {
-        "rango-50-plus": "#b91c1c",
-        "rango-20-50": "#dc2626",
-        "rango-10-20": "#f97316",
-        "rango-5-10": "#f59e0b",
-        "rango-3-5": "#eab308",
-        "rango-1-3": "#22c55e",
-        "rango-05-1": "#0ea5e9",
-        "rango-05": "#2563eb"
-      };
-      return colorByCost[getCostClass(cost)];
     }
 
     function formatMoneyMillions(value) {
@@ -1278,8 +1443,53 @@
       return value.toLocaleString("es-PE");
     }
 
+    function districtKey(work) {
+      return normalizeSearch(`${work.region}|${work.provincia}|${work.distrito}`);
+    }
+
+    function adjustedPopulation(visibleWorks) {
+      const districts = new Map();
+      visibleWorks.forEach((work) => {
+        const value = Number(work.people);
+        if (!Number.isFinite(value) || value <= 0) return;
+        if (value > 1000000) return;
+        const key = districtKey(work);
+        const current = districts.get(key);
+        if (!current || value > current) districts.set(key, value);
+      });
+      return Array.from(districts.values()).reduce((sum, value) => sum + value, 0);
+    }
+
+    function normalizeSearch(value) {
+      return (value || "")
+        .toString()
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "")
+        .toLowerCase()
+        .replace(/[^a-z0-9]+/g, " ")
+        .trim();
+    }
+
+    const workSearchIndex = new Map(Object.values(workData).map((work) => {
+      const facts = work.facts || {};
+      return [work, normalizeSearch([
+        work.title,
+        work.region,
+        work.provincia,
+        work.distrito,
+        work.nivel,
+        work.sector,
+        work.causa,
+        facts["Código Infobras"],
+        facts["CUI"],
+        facts["Entidad"],
+        facts["Ubicación"]
+      ].join(" "))];
+    }));
+
     function getActiveFilters() {
       const filters = [
+        ["Palabra clave", filterControls.keyword.value.trim(), ""],
         ["Departamento", filterControls.departamento.value, "Todos"],
         ["Nivel", filterControls.nivel.value, "Todos"],
         ["Sector", filterControls.sector.value, "Todos"],
@@ -1293,7 +1503,7 @@
       const activeFilters = getActiveFilters();
       const hasFilters = activeFilters.length > 0;
       filterStatus.classList.toggle("active", hasFilters);
-      clearFiltersButton.textContent = hasFilters ? "Limpiar filtros activos" : "Limpiar filtros";
+      clearFiltersButton.innerHTML = hasFilters ? "Limpiar filtros<br>activos" : "Limpiar filtros";
       filterChips.innerHTML = activeFilters
         .map(([label, value]) => `<span class="filter-chip">${label}: ${value}</span>`)
         .join("");
@@ -1303,9 +1513,9 @@
       const investment = visibleWorks.reduce((sum, work) => sum + work.cost, 0);
       const saldo = visibleWorks.reduce((sum, work) => sum + work.saldo, 0);
       const peopleValues = visibleWorks
-        .map((work) => work.people)
-        .filter((value) => Number.isFinite(value));
-      const people = peopleValues.reduce((sum, value) => sum + value, 0);
+        .map((work) => Number(work.people))
+        .filter((value) => Number.isFinite(value) && value > 0 && value <= 1000000);
+      const people = adjustedPopulation(visibleWorks);
       const regional = visibleWorks.filter((work) => work.nivel === "Gobierno regional" || work.nivel === "Gobierno local").length;
       const scoped = getActiveFilters().length > 0 ? "según filtros activos" : "total de obras visibles";
 
@@ -1316,7 +1526,7 @@
       kpiEls.saldo.textContent = formatMoneyMillions(saldo);
       kpiEls.saldoSub.textContent = "saldo por ejecutar";
       kpiEls.personas.textContent = peopleValues.length > 0 ? formatPeople(people) : "N/D";
-      kpiEls.personasSub.textContent = "Fuente: Sistema de Seguimiento de Inversiones";
+      kpiEls.personasSub.textContent = "(Aproximación por distrito) | Fuente: SSI";
       kpiEls.regionales.textContent = regional.toLocaleString("es-PE");
       kpiEls.regionalesSub.textContent = "según filtros activos";
     }
@@ -1368,16 +1578,14 @@
       const visibleWorks = [];
 
       Object.entries(workData).forEach(([key, work]) => {
-        const marker = markersByWork[key];
         const visible = matchesFilter(work);
         if (visible) {
           visibleWorkKeys.add(key);
           visibleWorks.push(work);
-          if (!leafletMap.hasLayer(marker)) marker.addTo(leafletMap);
-        } else if (leafletMap.hasLayer(marker)) {
-          leafletMap.removeLayer(marker);
         }
       });
+
+      syncMarkerLayer(visibleWorkKeys);
 
       if (activePopupWork && !visibleWorkKeys.has(activePopupWork)) {
         closeMapPopup();
@@ -1391,11 +1599,15 @@
       updateFilterStatus();
       updateKpis(visibleWorks);
       updateCauseChart(visibleWorks);
+      document.body.classList.remove("loading-kpis");
     }
 
     function renderFacts(facts) {
       return Object.entries(facts)
-        .map(([label, value]) => `<div class="popup-fact"><span>${label}</span><strong>${value}</strong></div>`)
+        .map(([label, value]) => {
+          const isLink = label.startsWith("Datos de ");
+          return `<div class="popup-fact ${isLink ? "popup-link-fact" : ""}"><span>${label}</span><strong>${value}</strong></div>`;
+        })
         .join("");
     }
 
@@ -1424,8 +1636,10 @@
     Object.values(filterControls).forEach((control) => {
       control.addEventListener("change", applyFilters);
     });
+    filterControls.keyword.addEventListener("input", applyFilters);
 
     function resetFilters() {
+      filterControls.keyword.value = "";
       filterControls.departamento.value = "Todos";
       filterControls.nivel.value = "Todos";
       filterControls.sector.value = "Todos";
